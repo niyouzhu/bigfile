@@ -25,7 +25,8 @@ namespace BigFile.Library
             get
             {
                 if (_messages == null) _messages = new MessageQueue();
-                return _messages;
+                _messages.Enqueued += () => { NewMessageArrived?.Invoke(_messages); };
+                return _messages ?? (_messages = new MessageQueue());
             }
         }
 
@@ -33,27 +34,69 @@ namespace BigFile.Library
         {
             get
             {
-                if (_allFiles == null) _allFiles = new FileQueue();
+                if (_allFiles == null)
+                {
+                    _allFiles = new FileQueue();
+                    _allFiles.Enqueued += () =>
+                   {
+                       if (_allFiles.TryDequeue(out FileInfo file))
+                       {
+                           try
+                           {
+                               Filter(file);
+                           }
+                           catch (Exception ex)
+                           {
+                               Messages.Enqueue(new Message() { Exception = ex, FilePath = file.FullName, FolderPath = file.DirectoryName });
+                           }
+                       }
+                   };
+                }
                 return _allFiles;
             }
         }
 
-        public FileQueue AllowedFiles
+        public FileQueue MatchedFiles
         {
             get
             {
-                if (_allowedFiles == null) _allowedFiles = new FileQueue();
-                return _allowedFiles;
+                if (_matchedFiles == null)
+                {
+                    _matchedFiles = new FileQueue();
+                    _matchedFiles.Enqueued += () => Matched?.Invoke(MatchedFiles);
+                }
+                return _matchedFiles ?? (_matchedFiles = new FileQueue());
             }
         }
 
-        private FileQueue _allowedFiles;
+        public event Action<FileQueue> Matched;
+
+        public event Action<MessageQueue> NewMessageArrived;
+
+        private FileQueue _matchedFiles;
 
         public DirectoryQueue Directories
         {
             get
             {
-                if (_directories == null) _directories = new DirectoryQueue();
+                if (_directories == null)
+                {
+                    _directories = new DirectoryQueue();
+                    _directories.Enqueued += async () =>
+                    {
+                        if (_directories.TryDequeue(out DirectoryInfo directory))
+                        {
+                            try
+                            {
+                                await StoreFiles(directory).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                Messages.Enqueue(new Message() { Exception = ex, FolderPath = directory.FullName });
+                            }
+                        }
+                    };
+                }
                 return _directories;
             }
         }
@@ -64,50 +107,62 @@ namespace BigFile.Library
             FilterOptions = filterOptions;
         }
 
-        public Task GetAllFiles()
+        private void StoreDirectories(DirectoryInfo directory)
         {
-            var directory = new DirectoryInfo(RootFolder);
-            return GetAllFiles(directory);
+            var directories = directory.GetDirectories("*", SearchOption.TopDirectoryOnly);
+            if (directories.Length > 0)
+            {
+                Directories.Enqueue(directories);
+                directories.ForEach(it =>
+               {
+                   try
+                   {
+                       StoreDirectories(it);
+                   }
+                   catch (Exception ex)
+                   {
+                       Messages.Enqueue(new Message() { Exception = ex, FolderPath = it.FullName });
+                   }
+               }
+
+                );
+            }
         }
 
-        private Task GetAllFiles(DirectoryInfo directory)
+        private Task StoreFiles(DirectoryInfo directoryInfo)
         {
-            try
-            {
-                var topFiles = directory.GetFiles("*", SearchOption.TopDirectoryOnly);
-                AllFiles.Enqueue(topFiles);
-                foreach (var topDirectory in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))
-                {
-                    GetAllFiles(topDirectory);
-                }
-            }
-            catch (Exception ex)
-            {
-                Messages.Enqueue(new Message() { Exception = ex });
-            }
-
-            return Task.CompletedTask;
+            return Task.Run(() =>
+          {
+              try
+              {
+                  var topFiles = directoryInfo.GetFiles("*", SearchOption.TopDirectoryOnly);
+                  AllFiles.Enqueue(topFiles);
+              }
+              catch (Exception ex)
+              {
+                  Messages.Enqueue(new Message() { Exception = ex, FolderPath = directoryInfo.FullName });
+              }
+          });
         }
 
-        public Task Scan()
+        public void Filter(FileInfo fileInfo)
         {
-            GetAllFiles();
-            while (true)
+            var filters = new FiltersBuilder().Build(FilterOptions, fileInfo);
+            if (filters.Match())
             {
-                FileInfo fileInfo;
-                if (AllFiles.TryDequeue(out fileInfo))
-                {
-                    var filters = new Filters
-                    {
-                        new FileExtensionNameFilter(FilterOptions.AllowFileExtensionNames, fileInfo.Extension),
-                        new FileSizeFilter(FilterOptions.AllowedFileSizeMb, (int)(fileInfo.Length / 1024.0 / 1024.0))
-                    };
-                    if (filters.Allow())
-                    {
-                        AllowedFiles.Enqueue(fileInfo);
-                    }
-                }
+                MatchedFiles.Enqueue(fileInfo);
             }
+        }
+
+        public Task<bool> Scan()
+        {
+            return Task.Run(() =>
+            {
+                var rootFolder = new DirectoryInfo(RootFolder);
+                Directories.Enqueue(rootFolder);
+                StoreDirectories(rootFolder);
+                return true;
+            });
         }
     }
 }

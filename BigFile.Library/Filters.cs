@@ -9,14 +9,14 @@ namespace BigFile.Library
 {
     public class Filters : Collection<IFilter>
     {
-        public bool Allow()
+        public bool Match()
         {
             var alloweds = new List<bool>(this.Count());
-            foreach (var filter in this)
+            for (int i = 0; i < this.Count; i++)
             {
-                alloweds.Add(filter.Allow());
+                if (!this[i].Match()) return false;
             }
-            return !alloweds.Contains(false);
+            return true;
         }
     }
 }

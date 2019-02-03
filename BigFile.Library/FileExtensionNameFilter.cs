@@ -7,13 +7,13 @@ namespace BigFile.Library
 {
     public class FileExtensionNameFilter : IFilter
     {
-        public FileExtensionNameFilter(string[] allowedExtensionNames, string thisFileExtensionName)
+        public FileExtensionNameFilter(string[] needSearchExtensionNames, string thisFileExtensionName)
         {
-            AllowedExtensionNames = allowedExtensionNames;
+            NeedSearchExtensionNames = needSearchExtensionNames;
             ThisFileExtensionName = thisFileExtensionName;
         }
 
-        public string[] AllowedExtensionNames { get; }
+        public string[] NeedSearchExtensionNames { get; }
 
         public string ThisFileExtensionName { get; }
 
@@ -21,13 +21,13 @@ namespace BigFile.Library
         {
         }
 
-        public bool Allow()
+        public bool Match()
         {
-            if (AllowedExtensionNames.Contains("*.*")) return true;
+            if (NeedSearchExtensionNames.Contains("*")) return true;
             bool allowed = false;
-            Array.ForEach(AllowedExtensionNames, it =>
+            Array.ForEach(NeedSearchExtensionNames, it =>
             {
-                if (it.Contains(ThisFileExtensionName)) allowed = true;
+                if (it.Contains(ThisFileExtensionName)) { allowed = true; return; }
             });
             if (allowed) return true;
             return false;

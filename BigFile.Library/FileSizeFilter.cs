@@ -6,18 +6,18 @@ namespace BigFile.Library
 {
     public class FileSizeFilter : IFilter
     {
-        public int AllowedFileSizeMb { get; }
+        public int GreaterThanFileSizeMb { get; }
         public int ThisFileSizeMb { get; }
 
-        public FileSizeFilter(int allowedFileSizeMb, int thisFileSizeMb)
+        public FileSizeFilter(int greaterThanFileSizeMb, int thisFileSizeMb)
         {
-            AllowedFileSizeMb = allowedFileSizeMb;
+            GreaterThanFileSizeMb = greaterThanFileSizeMb;
             ThisFileSizeMb = thisFileSizeMb;
         }
 
-        public bool Allow()
+        public bool Match()
         {
-            return AllowedFileSizeMb >= ThisFileSizeMb;
+            return GreaterThanFileSizeMb <= ThisFileSizeMb;
         }
     }
 }

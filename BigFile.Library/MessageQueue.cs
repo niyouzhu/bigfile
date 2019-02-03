@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BigFile.Library
 {
-    public class MessageQueue : ConcurrentQueue<Message>
+    public class MessageQueue : ConcurrentQueueWrapper<Message>
     {
     }
 }

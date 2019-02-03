@@ -8,6 +8,6 @@ namespace BigFile.Library
     {
         public int AllowedFileSizeMb { get; set; }
 
-        public string[] AllowFileExtensionNames { get; set; }
+        public string[] NeedSearchFileExtensionNames { get; set; }
     }
 }

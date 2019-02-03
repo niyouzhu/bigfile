@@ -8,5 +8,7 @@ namespace BigFile.Library
     {
         public string FilePath { get; set; }
         public Exception Exception { get; set; }
+
+        public string FolderPath { get; set; }
     }
 }

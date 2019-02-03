@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BigFile.Library
 {
-    public class FileQueue : ConcurrentQueue<FileInfo>
+    public class FileQueue : ConcurrentQueueWrapper<FileInfo>
     {
     }
 }

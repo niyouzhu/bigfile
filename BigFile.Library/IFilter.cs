@@ -6,6 +6,6 @@ namespace BigFile.Library
 {
     public interface IFilter
     {
-        bool Allow();
+        bool Match();
     }
 }
