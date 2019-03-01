@@ -6,16 +6,20 @@ using System.Windows.Forms;
 
 namespace BigFile.WindowsForm
 {
-    static class Program
+    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            Application.ThreadException += (o, e) =>
+            {
+                new ExceptionMessageForm(e.Exception).ShowDialog();
+            };
             Application.Run(new BigFileForm());
         }
     }

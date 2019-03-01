@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.IO;
 using System.Timers;
+using System.Threading;
 
 namespace BigFile.Library
 {
@@ -19,6 +20,27 @@ namespace BigFile.Library
         private DirectoryQueue _directories;
 
         public FilterOptions FilterOptions { get; }
+
+        public bool Stop
+        {
+            get { return _stop; }
+            set
+            {
+                if (value)
+                {
+                    ManualResetEventSlim.Reset();
+                }
+                else
+                {
+                    ManualResetEventSlim.Set();
+                }
+                _stop = value;
+            }
+        }
+
+        private bool _stop;
+
+        private ManualResetEventSlim ManualResetEventSlim = new ManualResetEventSlim(true);
 
         public MessageQueue Messages
         {
@@ -109,11 +131,16 @@ namespace BigFile.Library
 
         private void StoreDirectories(DirectoryInfo directory)
         {
+            if (!ManualResetEventSlim.IsSet)
+            {
+                ManualResetEventSlim.Wait();
+            }
+            Directories.Enqueue(directory);
             var directories = directory.GetDirectories("*", SearchOption.TopDirectoryOnly);
             if (directories.Length > 0)
             {
-                Directories.Enqueue(directories);
-                directories.ForEach(it =>
+                directories.ForEach
+                    (it =>
                {
                    try
                    {
@@ -159,7 +186,6 @@ namespace BigFile.Library
             return Task.Run(() =>
             {
                 var rootFolder = new DirectoryInfo(RootFolder);
-                Directories.Enqueue(rootFolder);
                 StoreDirectories(rootFolder);
                 return true;
             });
