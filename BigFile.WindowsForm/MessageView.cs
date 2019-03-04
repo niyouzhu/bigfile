@@ -24,5 +24,10 @@ namespace BigFile.WindowsForm
             this.Id = message.Id;
             this.MessageType = message.MessageType;
         }
+
+        public DataAccess.Message ToMessage()
+        {
+            return new DataAccess.Message() { ExceptionLog = this.ExceptionLog, MessageType = this.MessageType, Id = this.Id, ExceptionMessage = this.ExceptionMessage, FilePath = this.FilePath, FolderPath = this.FolderPath };
+        }
     }
 }

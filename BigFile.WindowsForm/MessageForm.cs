@@ -32,12 +32,7 @@ namespace BigFile.WindowsForm
         private void ButtonRefresh_Click(object sender, EventArgs e)
         {
             var result = DataAccessHelper.Search(null, null, MessageType, 0, int.MaxValue);
-            var list = new SortableBindingList<MessageView>();
-            foreach (var item in result)
-            {
-                list.Add(new MessageView(item));
-            }
-            ResultDataSource = list;
+            ResultDataSource = result.ForEach<SortableBindingList<MessageView>, DataAccess.Message, MessageView>(it => new MessageView(it));
         }
 
         private void ResultForm_Load(object sender, EventArgs e)
@@ -63,10 +58,8 @@ namespace BigFile.WindowsForm
 
         private void CheckBoxAll_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (var item in ResultDataSource)
-            {
-                item.Checked = CheckBoxAll.Checked;
-            }
+            ResultDataSource.ForEach(it => it.Checked = CheckBoxAll.Checked);
+
             DataGridViewResult.Refresh();
         }
 
@@ -75,7 +68,8 @@ namespace BigFile.WindowsForm
             if (MessageBox.Show("Do you make sure?", "Confirmation", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
                 var selected = ResultDataSource.Where(it => it.Checked);
-                DataAccessHelper.Delete(selected);
+                DataAccessHelper.Delete(selected.ForEach<List<DataAccess.Message>, MessageView, DataAccess.Message>(it => it.ToMessage()));
+
                 for (int i = 0; i < selected.Count(); i++)
                 {
                     ResultDataSource.Remove(selected.ElementAt(i));

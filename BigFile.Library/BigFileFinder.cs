@@ -47,7 +47,7 @@ namespace BigFile.Library
             get
             {
                 if (_messages == null) _messages = new MessageQueue();
-                _messages.Enqueued += () => { NewMessageArrived?.Invoke(_messages); };
+                _messages.Enqueued += () => NewMessageArrived?.Invoke(_messages);
                 return _messages ?? (_messages = new MessageQueue());
             }
         }

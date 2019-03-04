@@ -67,7 +67,7 @@ namespace BigFile.WindowsForm
                     Library.Message message;
                     if (o.TryDequeue(out message))
                     {
-                        DataAccessHelper.Add(new DataAccess.Message() { FilePath = message.FilePath, ExceptionMessage = message.Exception.Message, ExceptionLog = message.Exception.ToString(), MessageType = MessageType.Finder });
+                        DataAccessHelper.Add(new DataAccess.Message() { FolderPath = message.FolderPath, FilePath = message.FilePath, ExceptionMessage = message.Exception.Message, ExceptionLog = message.Exception.ToString(), MessageType = MessageType.Finder });
                     }
                 };
                 await _bigFileFinder.Scan().ContinueWith(task =>

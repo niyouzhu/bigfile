@@ -73,9 +73,9 @@
             // 
             this.ButtonDeletion.Location = new System.Drawing.Point(314, 433);
             this.ButtonDeletion.Name = "ButtonDeletion";
-            this.ButtonDeletion.Size = new System.Drawing.Size(121, 23);
+            this.ButtonDeletion.Size = new System.Drawing.Size(147, 23);
             this.ButtonDeletion.TabIndex = 2;
-            this.ButtonDeletion.Text = "Delete Selected Files";
+            this.ButtonDeletion.Text = "Delete Selected Messages";
             this.ButtonDeletion.UseVisualStyleBackColor = true;
             this.ButtonDeletion.Click += new System.EventHandler(this.ButtonDeletion_Click);
             // 

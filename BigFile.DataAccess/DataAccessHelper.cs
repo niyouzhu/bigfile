@@ -57,7 +57,7 @@ namespace BigFile.DataAccess
         {
             using (var db = new BigFileDbContext())
             {
-                db.Messages.AttachRange(message);
+                db.Messages.Attach(message);
                 foreach (var item in db.ChangeTracker.Entries())
                 {
                     item.State = Microsoft.EntityFrameworkCore.EntityState.Deleted;
@@ -70,11 +70,7 @@ namespace BigFile.DataAccess
         {
             using (var db = new BigFileDbContext())
             {
-                foreach (var item in messages)
-                {
-                    db.Messages.Attach(new Message() { Id = item.Id });
-                }
-                //db.Messages.AttachRange(messages);
+                db.Messages.AttachRange(messages);
                 foreach (var item in db.ChangeTracker.Entries())
                 {
                     item.State = Microsoft.EntityFrameworkCore.EntityState.Deleted;

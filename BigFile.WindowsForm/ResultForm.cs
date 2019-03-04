@@ -29,12 +29,7 @@ namespace BigFile.WindowsForm
         private void ButtonRefresh_Click(object sender, EventArgs e)
         {
             var result = DataAccessHelper.Search(null, 0, 0, int.MaxValue);
-            var list = new SortableBindingList<BigFileView>();
-            foreach (var item in result)
-            {
-                list.Add(new BigFileView(item));
-            }
-            ResultDataSource = list;
+            ResultDataSource = result.ForEach<SortableBindingList<BigFileView>, DataAccess.BigFile, BigFileView>(it => new BigFileView(it));
         }
 
         private void ResultForm_Load(object sender, EventArgs e)
@@ -60,10 +55,8 @@ namespace BigFile.WindowsForm
 
         private void CheckBoxAll_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (var item in ResultDataSource)
-            {
-                item.Checked = CheckBoxAll.Checked;
-            }
+            ResultDataSource.ForEach(it => it.Checked = CheckBoxAll.Checked);
+
             DataGridViewResult.Refresh();
         }
 
@@ -86,7 +79,7 @@ namespace BigFile.WindowsForm
                     Library.Message message;
                     if (o.TryDequeue(out message))
                     {
-                        DataAccessHelper.Add(new DataAccess.Message() { FilePath = message.FilePath, ExceptionMessage = message.Exception.Message, ExceptionLog = message.Exception.ToString(), MessageType = MessageType.Deletion });
+                        DataAccessHelper.Add(new DataAccess.Message() { FolderPath = message.FolderPath, FilePath = message.FilePath, ExceptionMessage = message.Exception.Message, ExceptionLog = message.Exception.ToString(), MessageType = MessageType.Deletion });
                     }
                 };
                 fileProcessor.Delete(GeneratorFileInfos(ResultDataSource.Where(it => it.Checked)));
@@ -96,12 +89,7 @@ namespace BigFile.WindowsForm
 
         private IEnumerable<FileInfo> GeneratorFileInfos(IEnumerable<BigFileView> bigFiles)
         {
-            var list = new List<FileInfo>(bigFiles.Count());
-            foreach (var item in bigFiles)
-            {
-                list.Add(new FileInfo(item.FilePath));
-            }
-            return list;
+            return bigFiles.ForEach<List<FileInfo>, BigFileView, FileInfo>(it => new FileInfo(it.FilePath));
         }
 
         private void ButtonMessagesForSearch_Click(object sender, EventArgs e)
