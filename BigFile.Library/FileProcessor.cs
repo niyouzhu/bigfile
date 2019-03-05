@@ -14,18 +14,17 @@ namespace BigFile.Library
         private bool Delete(FileInfo file, out Exception exception)
         {
             exception = null;
-            if (file.Exists)
+
+            try
             {
-                try
-                {
-                    File.Delete(file.FullName);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                }
+                File.Delete(file.FullName);
+                return true;
             }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
             return false;
         }
 

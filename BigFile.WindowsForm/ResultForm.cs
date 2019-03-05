@@ -79,7 +79,7 @@ namespace BigFile.WindowsForm
                     Library.Message message;
                     if (o.TryDequeue(out message))
                     {
-                        DataAccessHelper.Add(new DataAccess.Message() { FolderPath = message.FolderPath, FilePath = message.FilePath, ExceptionMessage = message.Exception.Message, ExceptionLog = message.Exception.ToString(), MessageType = MessageType.Deletion });
+                        DataAccessHelper.Add(new DataAccess.Message() { FolderPath = message.FolderPath, FilePath = message.FilePath, ExceptionMessage = message.Exception?.Message, ExceptionLog = message.Exception?.ToString(), MessageType = MessageType.Deletion });
                     }
                 };
                 fileProcessor.Delete(GeneratorFileInfos(ResultDataSource.Where(it => it.Checked)));
