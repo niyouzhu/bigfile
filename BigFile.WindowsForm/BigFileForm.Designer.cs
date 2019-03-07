@@ -121,7 +121,7 @@
             this.ButtonStop.Name = "ButtonStop";
             this.ButtonStop.Size = new System.Drawing.Size(75, 23);
             this.ButtonStop.TabIndex = 8;
-            this.ButtonStop.Text = "Stop";
+            this.ButtonStop.Text = "Pause";
             this.ButtonStop.UseVisualStyleBackColor = true;
             this.ButtonStop.Click += new System.EventHandler(this.ButtonStop_Click);
             // 
@@ -153,7 +153,7 @@
             this.ButtonClear.Name = "ButtonClear";
             this.ButtonClear.Size = new System.Drawing.Size(98, 23);
             this.ButtonClear.TabIndex = 12;
-            this.ButtonClear.Text = "Clear Last Times";
+            this.ButtonClear.Text = "Clear Last Time";
             this.ButtonClear.UseVisualStyleBackColor = true;
             this.ButtonClear.Click += new System.EventHandler(this.ButtonClear_Click);
             // 
