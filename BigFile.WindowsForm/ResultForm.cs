@@ -111,5 +111,11 @@ namespace BigFile.WindowsForm
         {
             new MessageForm(MessageType.Deletion).Show();
         }
+
+        private void ResultForm_SizeChanged(object sender, EventArgs e)
+        {
+            DataGridViewResult.Width = Size.Width - 80;
+
+        }
     }
 }

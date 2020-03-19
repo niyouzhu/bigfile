@@ -202,6 +202,7 @@
             this.Name = "ResultForm";
             this.Text = "Result";
             this.Load += new System.EventHandler(this.ResultForm_Load);
+            this.SizeChanged += new System.EventHandler(this.ResultForm_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.DataGridViewResult)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
